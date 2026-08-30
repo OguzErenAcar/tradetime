@@ -51,11 +51,17 @@ bölümüyle aynı işi daha detaylı takip etmek için var.
 - [ ] HTTP → HTTPS yönlendirmesi
 
 ## 4. VPS'te ayağa kaldırma
-- [ ] `docker compose build && docker compose up -d`
-- [ ] Tüm servislerin sağlıklı başladığı doğrulanacak (`docker compose ps`,
-      `/health`)
-- [ ] Piyasa verisinin arka planda dolduğu doğrulanacak (`/market/days` —
-      ilk açılışta ~30-50sn sürüyor, local testte de aynıydı)
+- [x] `docker compose build && docker compose up -d` — backend `8000`,
+      frontend `80` portlarında (nginx henüz yok, doğrudan yayında; `8000`
+      geçici olarak `ufw`'de açık, nginx eklenince kapatılacak)
+- [x] Tüm servisler sağlıklı: `docker compose ps` üçü de "Up"/"healthy",
+      `/health` dışarıdan (`91.232.103.192:8000`) doğrulandı
+- [x] Piyasa verisi arka planda doldu — burada VPS'in Yahoo Finance'e ağ
+      yolu local'den belirgin şekilde yavaş çıktı (~50sn yerine ~3.5dk),
+      hata değil ama bilgi olsun: her container restart'ında bu kadar
+      sürebilir
+- [x] Dışarıdan gerçek tarayıcıyla doğrulandı: `http://91.232.103.192`
+      açılıyor, veriler doluyor, konsol hatası yok
 
 ## 5. Uçtan uca doğrulama
 - [ ] Yeni domain/IP tarayıcıdan açılıp tüm sayfalar (Anasayfa/Alarm/
