@@ -27,11 +27,19 @@ bölümüyle aynı işi daha detaylı takip etmek için var.
       (SSH erişimi firewall sonrası da test edildi)
 
 ## 2. Kod VPS'e taşınacak
-- [ ] Seçilen yönteme göre (git ya da rsync) proje dosyaları VPS'e aktarılacak
-- [ ] `backend/vapid_private_key.pem` ayrıca güvenli şekilde taşınacak (git'e
-      girmiyor, elle kopyalanması gerekiyor)
-- [ ] Kök `.env` VPS'te prod değerleriyle oluşturulacak (`VITE_API_BASE_URL`,
-      `ALLOWED_ORIGINS` artık gerçek domain/IP'yi gösterecek)
+- [x] `git clone` ile proje `/opt/tradetime`'a çekildi (repo public, VPS'te
+      ayrıca kimlik doğrulama gerekmedi)
+- [x] `backend/vapid_private_key.pem` `scp` ile (SSH üzerinden şifreli)
+      güvenli şekilde taşındı
+- [x] Kök `.env` VPS'te prod değerleriyle oluşturuldu: `VITE_API_BASE_URL`/
+      `ALLOWED_ORIGINS` artık VPS IP'sini (`91.232.103.192`) gösteriyor,
+      `POSTGRES_PASSWORD` rastgele üretilen güçlü bir şifreyle değiştirildi
+      (`docker-compose.yml` artık bunu env'den okuyor, sabit değil).
+      **Not:** bu süreçte yerelde yanlışlıkla `.env.vps` adında sırrı içeren
+      bir dosya repo köküne düştü — `.gitignore`'daki `.env` deseni tam
+      eşleşme olduğu için onu yakalamıyordu, hemen fark edip `.gitignore`'a
+      `.env.*` deseni eklendi ve dosya commit edilmeden silindi (hiç git'e
+      girmedi, GitHub'da hiç görünmedi)
 
 ## 3. Nginx + SSL (docker-compose.yml'e 4. servis olarak eklenecek)
 - [ ] `nginx` servisi eklenecek: `/` için frontend container'ına,
