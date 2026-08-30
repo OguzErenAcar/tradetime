@@ -14,10 +14,17 @@ bölümüyle aynı işi daha detaylı takip etmek için var.
       yürütülecek
 
 ## 1. VPS temel kurulum
-- [ ] SSH ile VPS'e bağlan, sistem güncellemesi (`apt update && apt upgrade`)
-- [ ] Docker + Docker Compose kurulumu
-- [ ] Güvenlik duvarı: sadece 22 (SSH), 80, 443 açık; 5432/8000/8080 gibi iç
-      portlar dışa kapalı kalacak
+- [x] SSH ile VPS'e bağlan, sistem güncellemesi — VPS: `91.232.103.192`
+      (Ubuntu 24.04.1 LTS, 2 vCPU / 3.8GB RAM / 32GB boş disk). Şifreyle bir
+      kere bağlanıp kendi SSH anahtarımızı (`~/.ssh/tradetime_vps`) ekledik,
+      `~/.ssh/config`'e `tradetime-vps` alias'ı eklendi — bundan sonra şifreye
+      gerek yok. **Not: ekran görüntüsünde paylaşılan root şifresini VPS
+      hazır olunca değiştir.**
+- [x] Docker + Docker Compose kurulumu — resmi Docker repo'sundan
+      `docker-ce` + `docker-compose-plugin` (v5.5.0) kuruldu, `hello-world`
+      ile doğrulandı
+- [x] Güvenlik duvarı: `ufw` ile sadece 22/80/443 açık, aktif ve kalıcı
+      (SSH erişimi firewall sonrası da test edildi)
 
 ## 2. Kod VPS'e taşınacak
 - [ ] Seçilen yönteme göre (git ya da rsync) proje dosyaları VPS'e aktarılacak
