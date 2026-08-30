@@ -39,18 +39,18 @@ services:
     ports:
       - "${FRONTEND_PORT:-8080}:80"
 
-  # SITE_ADDRESS ayarlıysa (prod/VPS) devreye girer: 80/443'ü üstlenip
-  # Let's Encrypt sertifikasını otomatik alır, /api/* -> backend, geri kalan
-  # her şey -> frontend'e yönlendirir. Local'de SITE_ADDRESS boşsa
-  # `docker compose up` bu servisi de başlatır ama Caddyfile'da adres
-  # olmadan iş yapmaz — dokunmuyoruz, sadece profille (bkz. README) kapatılabilir.
+  # Sadece VPS/prod'da: `docker compose --profile prod up -d` ile devreye
+  # girer, 80/443'ü üstlenip Let's Encrypt sertifikasını otomatik alır,
+  # /api/* -> backend, geri kalan her şey -> frontend'e yönlendirir.
+  # Local dev'de (plain `docker compose up`) hiç başlamaz.
   caddy:
     image: caddy:2
+    profiles: ["prod"]
     depends_on:
       - backend
       - frontend
     environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      SITE_ADDRESS: ${SITE_ADDRESS}
     ports:
       - "80:80"
       - "443:443"
