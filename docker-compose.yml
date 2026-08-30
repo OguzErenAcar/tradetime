@@ -3,7 +3,7 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: alarm_app
-      POSTGRES_PASSWORD: alarm_dev_pw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alarm_dev_pw}
       POSTGRES_DB: bist_alarm
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -19,7 +19,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://alarm_app:alarm_dev_pw@postgres:5432/bist_alarm
+      DATABASE_URL: postgresql://alarm_app:${POSTGRES_PASSWORD:-alarm_dev_pw}@postgres:5432/bist_alarm
       VAPID_PRIVATE_KEY_FILE: vapid_private_key.pem
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
       VAPID_CONTACT_EMAIL: ${VAPID_CONTACT_EMAIL}
@@ -27,7 +27,7 @@ services:
     volumes:
       - ./backend/vapid_private_key.pem:/app/vapid_private_key.pem:ro
     ports:
-      - "8001:8000"
+      - "${BACKEND_PORT:-8001}:8000"
 
   frontend:
     build:
@@ -37,7 +37,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8080:80"
+      - "${FRONTEND_PORT:-8080}:80"
 
 volumes:
   postgres_data:
