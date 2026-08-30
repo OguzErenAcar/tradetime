@@ -27,7 +27,12 @@ services:
     volumes:
       - ./backend/vapid_private_key.pem:/app/vapid_private_key.pem:ro
     ports:
-      - "${BACKEND_PORT:-8001}:8000"
+      # 127.0.0.1'e bağlı: Docker'ın iptables kuralları ufw'yi bypass edip
+      # 0.0.0.0'a bağlı portları dışarıdan erişilebilir bırakabiliyor — bu
+      # yüzden dış dünyaya kapalı olması gereken servisler (prod'da sadece
+      # Caddy dışa açık olmalı) host'un localhost'una sabitlendi. Local
+      # dev'de tarayıcıdan `localhost:PORT` erişimini etkilemiyor.
+      - "127.0.0.1:${BACKEND_PORT:-8001}:8000"
 
   frontend:
     build:
