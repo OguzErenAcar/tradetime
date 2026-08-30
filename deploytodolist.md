@@ -4,12 +4,14 @@ Sırayla ilerlenecek — her adım bir öncekine bağlı. `TODO.md`'deki "3. Alt
 bölümüyle aynı işi daha detaylı takip etmek için var.
 
 ## 0. Karar verilecekler (deploy başlamadan önce)
-- [ ] **Domain**: gerçek domain mi alınacak, yoksa geçici olarak `sslip.io`
-      (`VPS-IP.sslip.io`) gibi ücretsiz bir çözümle mi gerçek HTTPS alınacak
-- [ ] **Kod transferi**: `git` (önce repo GitHub'a açılır, VPS'te `git clone`/
-      `git pull`) mi, yoksa her deploy'da `rsync`/`scp` mi
-- [ ] **VPS erişimi**: SSH bilgileri paylaşılıp buradan mı bağlanılacak, yoksa
-      adım adım talimat verilip kullanıcı kendi mi çalıştıracak
+- [ ] **Domain**: şimdilik yok — VPS alınana kadar sadece IP ile ilerlenecek,
+      nginx+SSL adımı (bölüm 3) VPS + domain kararı netleşince ele alınacak
+- [x] **Kod transferi**: Git — repo oluşturuldu ve ilk commit push'landı:
+      https://github.com/OguzErenAcar/tradetime (private email GitHub
+      tarafından reddedildiği için commit yazarı GitHub no-reply adresine
+      çevrildi: `OguzErenAcar@users.noreply.github.com`)
+- [x] **VPS erişimi**: SSH bilgileri paylaşılacak, buradan bağlanıp
+      yürütülecek
 
 ## 1. VPS temel kurulum
 - [ ] SSH ile VPS'e bağlan, sistem güncellemesi (`apt update && apt upgrade`)
