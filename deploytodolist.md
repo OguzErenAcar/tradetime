@@ -41,27 +41,41 @@ bölümüyle aynı işi daha detaylı takip etmek için var.
       `.env.*` deseni eklendi ve dosya commit edilmeden silindi (hiç git'e
       girmedi, GitHub'da hiç görünmedi)
 
-## 3. Nginx + SSL (docker-compose.yml'e 4. servis olarak eklenecek)
-- [ ] `nginx` servisi eklenecek: `/` için frontend container'ına,
-      backend endpoint'lerine (`/alarms`, `/market`, `/push`, `/favorites`,
-      `/prices`, `/tickers`, `/settings`, `/health`) backend container'ına
-      reverse proxy
-- [ ] Certbot ile Let's Encrypt sertifikası alınacak (otomatik yenileme için
-      ayrı bir certbot container'ı — CLAUDE.md'de zaten bu şekilde kararlaştırılmıştı)
-- [ ] HTTP → HTTPS yönlendirmesi
+## 3. Nginx + SSL → Caddy + SSL olarak değişti
+Nginx yerine **Caddy** kullanıldı — reverse proxy + Let's Encrypt sertifikasını
+neredeyse hiç config yazmadan otomatik alıp yeniliyor (nginx+certbot'un iki
+ayrı parçasına göre çok daha basit, tek container).
+- [x] `docker-compose.yml`'e `caddy` servisi eklendi — sadece
+      `docker compose --profile prod up -d` ile devreye giriyor, local dev'de
+      hiç başlamıyor (`profiles: ["prod"]`)
+- [x] Kök `Caddyfile`: `/api/*` → prefix'i silip backend'e, geri kalan her
+      şey → frontend'e proxy ediyor
+- [x] Let's Encrypt sertifikası otomatik alındı (`91-232-103-192.sslip.io`),
+      HTTP→HTTPS yönlendirmesi Caddy'de varsayılan olarak açık — ikisi de
+      dışarıdan doğrulandı
+- [x] Frontend `/api` (relative path) ile build edildi — artık frontend ve
+      backend aynı origin'den servis ediliyor, CORS'a bile gerek kalmadı
+- [x] **Güvenlik düzeltmesi:** backend/frontend'in host portları (`8001`,
+      `8080`) ilk başta `0.0.0.0`'a bağlıydı — Docker'ın kendi iptables
+      kuralları `ufw`'yi bypass ettiği için bunlar `ufw`'de izin verilmemiş
+      olsa bile dışarıdan erişilebiliyordu (test ederek doğrulandı).
+      `docker-compose.yml`'de `127.0.0.1:PORT:PORT` şeklinde host'un
+      localhost'una sabitlendi — artık sadece Caddy (80/443) dışa açık,
+      backend/frontend'e doğrudan internetten ulaşılamıyor (bu da test
+      edilip doğrulandı)
+- [x] Geçici `ufw` kuralı (backend için açılan `8000`) kaldırıldı, artık
+      sadece 22/80/443 açık
 
 ## 4. VPS'te ayağa kaldırma
-- [x] `docker compose build && docker compose up -d` — backend `8000`,
-      frontend `80` portlarında (nginx henüz yok, doğrudan yayında; `8000`
-      geçici olarak `ufw`'de açık, nginx eklenince kapatılacak)
-- [x] Tüm servisler sağlıklı: `docker compose ps` üçü de "Up"/"healthy",
-      `/health` dışarıdan (`91.232.103.192:8000`) doğrulandı
-- [x] Piyasa verisi arka planda doldu — burada VPS'in Yahoo Finance'e ağ
-      yolu local'den belirgin şekilde yavaş çıktı (~50sn yerine ~3.5dk),
-      hata değil ama bilgi olsun: her container restart'ında bu kadar
-      sürebilir
-- [x] Dışarıdan gerçek tarayıcıyla doğrulandı: `http://91.232.103.192`
-      açılıyor, veriler doluyor, konsol hatası yok
+- [x] `docker compose --profile prod build && ... up -d` — dört servis de
+      (postgres, backend, frontend, caddy) ayakta ve sağlıklı
+- [x] Piyasa verisi arka planda doldu — VPS'in Yahoo Finance'e ağ yolu
+      local'den belirgin şekilde yavaş çıktı (~50sn yerine ~1.5-4dk arası
+      değişti), hata değil ama bilgi olsun: her container restart'ında bu
+      kadar sürebilir
+- [x] Dışarıdan gerçek tarayıcıyla doğrulandı: `https://91-232-103-192.sslip.io`
+      açılıyor, geçerli Let's Encrypt sertifikası, veriler doluyor, konsol
+      hatası yok
 
 ## 5. Uçtan uca doğrulama
 - [ ] Yeni domain/IP tarayıcıdan açılıp tüm sayfalar (Anasayfa/Alarm/
