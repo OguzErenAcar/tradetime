@@ -78,12 +78,14 @@ ayrı parçasına göre çok daha basit, tek container).
       hatası yok
 
 ## 5. Uçtan uca doğrulama
-- [ ] Yeni domain/IP tarayıcıdan açılıp tüm sayfalar (Anasayfa/Alarm/
-      Favoriler/Halka Arz) test edilecek
+- [x] `https://91-232-103-192.sslip.io` tarayıcıdan açılıp Anasayfa test
+      edildi (veri doluyor, hata yok) — Alarm/Favoriler/Halka Arz henüz
+      denenmedi
 - [ ] Alarm oluşturma/silme, favori ekleme gibi temel akışlar VPS üzerinden
       denenecek
 - [ ] Telefonda: eski PWA ikonu (tünel adresine bağlıydı) silinip yeni
-      domain/IP'den "Ana ekrana ekle" tekrar yapılacak
+      `https://91-232-103-192.sslip.io`'den "Ana ekrana ekle" tekrar
+      yapılacak
 - [ ] Telefonda bildirimler yeni adresten tekrar açılıp test alarmıyla push
       bildirimi ulaştığı doğrulanacak
 - [ ] Android nav bar / status bar renginin (daha önce düzelttiğimiz
