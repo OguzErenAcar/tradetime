@@ -4,8 +4,8 @@ Sırayla ilerlenecek — her adım bir öncekine bağlı. `TODO.md`'deki "3. Alt
 bölümüyle aynı işi daha detaylı takip etmek için var.
 
 ## 0. Karar verilecekler (deploy başlamadan önce)
-- [ ] **Domain**: şimdilik yok — VPS alınana kadar sadece IP ile ilerlenecek,
-      nginx+SSL adımı (bölüm 3) VPS + domain kararı netleşince ele alınacak
+- [x] **Domain**: gerçek domain yerine `sslip.io` ile ilerlendi —
+      `91-232-103-192.sslip.io`, VPS IP'sine otomatik çözülüyor, ücretsiz
 - [x] **Kod transferi**: Git — repo oluşturuldu ve ilk commit push'landı:
       https://github.com/OguzErenAcar/tradetime (private email GitHub
       tarafından reddedildiği için commit yazarı GitHub no-reply adresine
