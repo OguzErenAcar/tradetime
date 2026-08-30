@@ -5,6 +5,7 @@ backend/venv/
 
 # Secrets / env
 .env
+.env.*
 backend/.env
 backend/vapid_private_key.pem
 frontend/.env.local
