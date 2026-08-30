@@ -1,0 +1,59 @@
+# VPS Deploy Todolist
+
+Sırayla ilerlenecek — her adım bir öncekine bağlı. `TODO.md`'deki "3. Altyapı"
+bölümüyle aynı işi daha detaylı takip etmek için var.
+
+## 0. Karar verilecekler (deploy başlamadan önce)
+- [ ] **Domain**: gerçek domain mi alınacak, yoksa geçici olarak `sslip.io`
+      (`VPS-IP.sslip.io`) gibi ücretsiz bir çözümle mi gerçek HTTPS alınacak
+- [ ] **Kod transferi**: `git` (önce repo GitHub'a açılır, VPS'te `git clone`/
+      `git pull`) mi, yoksa her deploy'da `rsync`/`scp` mi
+- [ ] **VPS erişimi**: SSH bilgileri paylaşılıp buradan mı bağlanılacak, yoksa
+      adım adım talimat verilip kullanıcı kendi mi çalıştıracak
+
+## 1. VPS temel kurulum
+- [ ] SSH ile VPS'e bağlan, sistem güncellemesi (`apt update && apt upgrade`)
+- [ ] Docker + Docker Compose kurulumu
+- [ ] Güvenlik duvarı: sadece 22 (SSH), 80, 443 açık; 5432/8000/8080 gibi iç
+      portlar dışa kapalı kalacak
+
+## 2. Kod VPS'e taşınacak
+- [ ] Seçilen yönteme göre (git ya da rsync) proje dosyaları VPS'e aktarılacak
+- [ ] `backend/vapid_private_key.pem` ayrıca güvenli şekilde taşınacak (git'e
+      girmiyor, elle kopyalanması gerekiyor)
+- [ ] Kök `.env` VPS'te prod değerleriyle oluşturulacak (`VITE_API_BASE_URL`,
+      `ALLOWED_ORIGINS` artık gerçek domain/IP'yi gösterecek)
+
+## 3. Nginx + SSL (docker-compose.yml'e 4. servis olarak eklenecek)
+- [ ] `nginx` servisi eklenecek: `/` için frontend container'ına,
+      backend endpoint'lerine (`/alarms`, `/market`, `/push`, `/favorites`,
+      `/prices`, `/tickers`, `/settings`, `/health`) backend container'ına
+      reverse proxy
+- [ ] Certbot ile Let's Encrypt sertifikası alınacak (otomatik yenileme için
+      ayrı bir certbot container'ı — CLAUDE.md'de zaten bu şekilde kararlaştırılmıştı)
+- [ ] HTTP → HTTPS yönlendirmesi
+
+## 4. VPS'te ayağa kaldırma
+- [ ] `docker compose build && docker compose up -d`
+- [ ] Tüm servislerin sağlıklı başladığı doğrulanacak (`docker compose ps`,
+      `/health`)
+- [ ] Piyasa verisinin arka planda dolduğu doğrulanacak (`/market/days` —
+      ilk açılışta ~30-50sn sürüyor, local testte de aynıydı)
+
+## 5. Uçtan uca doğrulama
+- [ ] Yeni domain/IP tarayıcıdan açılıp tüm sayfalar (Anasayfa/Alarm/
+      Favoriler/Halka Arz) test edilecek
+- [ ] Alarm oluşturma/silme, favori ekleme gibi temel akışlar VPS üzerinden
+      denenecek
+- [ ] Telefonda: eski PWA ikonu (tünel adresine bağlıydı) silinip yeni
+      domain/IP'den "Ana ekrana ekle" tekrar yapılacak
+- [ ] Telefonda bildirimler yeni adresten tekrar açılıp test alarmıyla push
+      bildirimi ulaştığı doğrulanacak
+- [ ] Android nav bar / status bar renginin (daha önce düzelttiğimiz
+      `viewport-fit=cover` + `color-scheme`) prod'da da doğru göründüğü
+      kontrol edilecek
+
+## 6. Son temizlik
+- [ ] Local dev tünelleri (cloudflared) artık gerekmiyorsa tamamen
+      kapatılacak
+- [ ] `TODO.md`'deki "3. Altyapı" bölümü tamamlanmış olarak işaretlenecek

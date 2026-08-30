@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: alarm_app
+      POSTGRES_PASSWORD: alarm_dev_pw
+      POSTGRES_DB: bist_alarm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alarm_app -d bist_alarm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://alarm_app:alarm_dev_pw@postgres:5432/bist_alarm
+      VAPID_PRIVATE_KEY_FILE: vapid_private_key.pem
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+      VAPID_CONTACT_EMAIL: ${VAPID_CONTACT_EMAIL}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080}
+    volumes:
+      - ./backend/vapid_private_key.pem:/app/vapid_private_key.pem:ro
+    ports:
+      - "8001:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8001}
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:

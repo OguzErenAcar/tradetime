@@ -1,0 +1,11 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.35
+psycopg2-binary==2.9.9
+pydantic==2.9.2
+python-dotenv==1.0.1
+yfinance==1.7.0
+apscheduler==3.10.4
+pywebpush==2.5.0
+beautifulsoup4==4.15.0
+requests==2.34.2
