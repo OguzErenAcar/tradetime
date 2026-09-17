@@ -172,12 +172,35 @@ CREATE TABLE favorites (
   origin listesi tünel adreslerine göre güncellenmişti — tüneller kalıcı
   değil, oturum kapanınca düşer.
 
+## Deploy durumu
+
+Proje VPS'e canlı deploy edilmiş durumda (`/opt/tradetime`, root SSH erişimi
+`~/.ssh/config`'te `tradetime-vps` host'u olarak tanımlı — bu alias
+kullanılıp elle IP yazılmasına gerek yok). Canlı URL bilinçli olarak bu
+dosyaya (public repo) yazılmıyor — uygulamada authentication yok, tek
+kullanıcılık kişisel araç olarak tasarlandı, URL'yi public repoya koymak
+herkesin erişip alarmları görüp değiştirebilmesi anlamına gelir. URL
+gerektiğinde kullanıcıdan istenmeli.
+
+VPS'in IP'si sağlayıcı (SagaNetwork) tarafından zaman zaman değişebiliyor
+(2026-09-17'de değişti). IP değiştiğinde `.env`'deki `SITE_ADDRESS` ve
+`ALLOWED_ORIGINS` (sslip.io adresleri) elle güncellenip `docker compose up
+-d --force-recreate backend` + caddy'nin yeniden sertifika alması
+gerekiyor. Ayrıca VPS'in ufw'si Docker container'larının outbound
+trafiğini (`DEFAULT_FORWARD_POLICY`) bazen `DROP`'a resetleyebiliyor —
+böyle bir şey olursa container'lar internete çıkamaz, Let's Encrypt
+sertifikası yenilenemez; `/etc/default/ufw` içinde `ACCEPT` olduğundan ve
+`ufw reload` yapıldığından emin ol. Docker'ın proje bridge network'ü
+(`tradetime_default`) bazen IPv4 adresini kaybedebiliyor (`ip addr show
+br-*` ile kontrol edilir, sadece IPv6 varsa sorun var demektir) —
+`systemctl restart docker` + `docker compose --profile prod up -d` ile
+düzeliyor. Detaylar için TODO.md'nin "Altyapı" bölümüne bak.
+
 ## Henüz yapılmayanlar (özet — detay için TODO.md)
 
-- Backend + frontend için Dockerfile'lar yazılmadı
-- docker-compose.yml yazılmadı, local'de tüm servisler birlikte test edilmedi
-- Nginx + SSL kurulumu yapılmadı
-- VPS'e hiçbir şey deploy edilmedi
+- Altyapı fazı tamamlandı (Dockerfile'lar, docker-compose.yml, VPS deploy,
+  domain/SSL — yukarıya bak). Kalan işler için TODO.md'ye bak (şu an aktif
+  bekleyen büyük bir madde yok, bundan sonraki işler kullanıcıdan gelecek).
 
 ## Nasıl ilerlemeli
 
