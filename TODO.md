@@ -50,11 +50,11 @@
 ## 3. Altyapı / Yayına alma (en son)
 - [x] VPS kiralandı
 - [x] **Local'de test:** kök dizinde `docker-compose.yml` (postgres + backend + frontend, henüz nginx/SSL yok — o VPS adımında). `docker compose up -d` ile uçtan uca test edildi: postgres sağlıklı, backend 537 ticker'ı seed edip `/health` ve piyasa endpoint'lerini doğru veriyor (ilk açılışta market cache hesaplaması ~50sn sürüyor, beklenen davranış), frontend build'i backend'e doğru CORS ile bağlanıp gerçek veriyi render ediyor (headless tarayıcıyla doğrulandı, hata yok). VAPID private key imaja gömülmüyor, `./backend/vapid_private_key.pem` runtime'da mount ediliyor. Local portlar: backend `8001`, frontend `8080` (dev sunucularıyla — `8000`/`5173` — çakışmasın diye farklı seçildi). Kök `.env`/`.env.example` eklendi. Ayrıca backend CORS origin listesi artık koddan değil `ALLOWED_ORIGINS` env değişkeninden okunuyor (`backend/app/main.py`) — her ortam/tünel değişiminde kaynağı elle düzenlemek gerekmiyor.
-- [ ] VPS'e Docker ve Docker Compose kurulacak
-- [ ] VPS'te PostgreSQL container'ı ayağa kaldırılacak
-- [ ] Güvenlik duvarı sadece gerekli IP/portlara açılacak
-- [ ] VPS'te docker-compose up ile yayına alınacak
-- [ ] Domain/SSL ayarlanacak (HTTPS zorunlu, çünkü Web Push HTTPS olmadan çalışmaz)
+- [x] VPS'e Docker ve Docker Compose kuruldu, `/opt/tradetime` altına deploy edildi (4 container: postgres, backend, frontend, caddy — `docker compose --profile prod up -d`)
+- [x] Güvenlik duvarı (ufw) sadece 22/80/443'e açık
+- [x] VPS'te docker-compose up ile yayına alındı
+- [x] Domain/SSL: gerçek domain yerine `sslip.io` kullanılıyor (`<ip-tireli>.sslip.io` şeklinde sunucunun kendi IP'sine çözülüyor, ekstra domain kaydına gerek bırakmıyor). Caddy bu adres için Let's Encrypt sertifikasını otomatik alıyor/yeniliyor (nginx+Certbot yerine tek container'lık Caddy'ye karar verildi — `docker-compose.yml`'de `caddy` servisi `profiles: ["prod"]` ile sadece VPS'te devreye giriyor, local dev'i etkilemiyor)
+- [x] 2026-09-17: VPS'in IP'si sağlayıcı tarafından değiştirildi (eski IP ağ seviyesinde tamamen erişilemez hale gelmişti, destek yeni IP verdi). Yeni IP'ye geçişte iki ayrı arıza tespit edilip düzeltildi: (1) `ufw`'nin forward/routed trafik için varsayılan politikası `DROP`'a dönmüştü → container'lar internete çıkamıyor, Let's Encrypt sertifikası alınamıyordu; `/etc/default/ufw`'de `DEFAULT_FORWARD_POLICY` `ACCEPT` yapılıp `ufw reload` edildi (gelen bağlantı kısıtlaması — sadece 22/80/443 — değişmedi, sadece container'ların dışarı çıkışı açıldı). (2) Docker'ın proje bridge network'ü (`tradetime_default`) IPv4 adresini kaybetmişti (`br-*` arayüzünde sadece IPv6 link-local kalmıştı) → `systemctl restart docker` ile düzeldi. `.env`/`Caddyfile`'daki `SITE_ADDRESS`/`ALLOWED_ORIGINS` yeni IP'nin sslip.io adresine güncellendi.
 
 ## Notlar
 - Web Push, tarayıcı kapalıyken bile bildirim gösterebilir (service worker sayesinde), ama HTTPS zorunludur — bu yüzden domain + SSL sertifikası (örn. Let's Encrypt) planına dahil edilmeli.
