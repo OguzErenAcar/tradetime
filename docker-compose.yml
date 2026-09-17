@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:16
+    restart: unless-stopped
     environment:
       POSTGRES_USER: alarm_app
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alarm_dev_pw}
