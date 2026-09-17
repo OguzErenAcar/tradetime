@@ -39,13 +39,18 @@ görüyor. Alarmdan bağımsız, sadece takip amaçlı.
   ile çekiliyor, örn. `THYAO.IS`. Kontrol sıklığı düşük (saatte 1) olduğu için
   rate-limit riski yok, bu proje için yeterince stabil kabul edildi.
 - **Veritabanı**: PostgreSQL, Docker container olarak çalışacak
-- **Deploy**: Docker Compose ile 4 servis:
+- **Deploy**: Docker Compose ile 4 servis (kesinleşti ve VPS'e canlı deploy
+  edildi — bkz. "Deploy durumu"):
   1. `postgres` — veritabanı
   2. `backend` — API + alarm kontrol mantığı
-  3. `frontend` — React build, statik dosya olarak servis edilecek
-  4. `nginx` — reverse proxy + SSL (Certbot ile Let's Encrypt, ayrı container
-     veya nginx içine gömülü — otomatik yenileme için ayrı container tercih
-     edildi)
+  3. `frontend` — React build, statik dosya olarak servis ediliyor
+  4. `caddy` — reverse proxy + otomatik SSL (nginx+Certbot yerine tercih
+     edildi: tek container, Let's Encrypt sertifikasını kendi yönetiyor).
+     `docker-compose.yml`'de `profiles: ["prod"]` ile tanımlı, sadece VPS'te
+     `docker compose --profile prod up -d` ile devreye giriyor, local dev'de
+     hiç başlamıyor. Gerçek bir domain yerine `sslip.io` kullanılıyor
+     (`<ip-tireli>.sslip.io` sunucunun kendi IP'sine çözülüyor) — ayrı domain
+     kaydına gerek yok.
 - **Backend dili**: Python/FastAPI (kesinleşti). `check_alarms_prototype.py`
   prototipinin üzerine geliştirilecek.
 
