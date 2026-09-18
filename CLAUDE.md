@@ -186,10 +186,13 @@ herkesin erişip alarmları görüp değiştirebilmesi anlamına gelir. URL
 gerektiğinde kullanıcıdan istenmeli.
 
 VPS'in IP'si sağlayıcı (SagaNetwork) tarafından zaman zaman değişebiliyor
-(2026-09-17'de değişti). IP değiştiğinde `.env`'deki `SITE_ADDRESS` ve
-`ALLOWED_ORIGINS` (sslip.io adresleri) elle güncellenip `docker compose up
--d --force-recreate backend` + caddy'nin yeniden sertifika alması
-gerekiyor. Ayrıca VPS'in ufw'si Docker container'larının outbound
+(2026-09-17'de değişti). IP değiştiğinde `.env`'deki `ALLOWED_ORIGINS`
+(sslip.io adresi) elle güncellenip `docker compose up -d --force-recreate
+backend` gerekiyor. `SITE_ADDRESS`/sertifika artık burada değil — 80/443'ü
+tutan `edge-proxy` (2026-09-18'den beri, bkz. yukarıdaki not) VPS'te ayrı
+bir yerde (bu repoda değil) çalışıyor, IP değişince onun kendi `.env`'i ve
+Caddy container'ının restart edilmesi gerekiyor. Ayrıca VPS'in ufw'si
+Docker container'larının outbound
 trafiğini (`DEFAULT_FORWARD_POLICY`) bazen `DROP`'a resetleyebiliyor —
 böyle bir şey olursa container'lar internete çıkamaz, Let's Encrypt
 sertifikası yenilenemez; `/etc/default/ufw` içinde `ACCEPT` olduğundan ve
