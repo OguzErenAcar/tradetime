@@ -47,28 +47,16 @@ services:
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-8080}:80"
 
-  # Sadece VPS/prod'da: `docker compose --profile prod up -d` ile devreye
-  # girer, 80/443'ü üstlenip Let's Encrypt sertifikasını otomatik alır,
-  # /api/* -> backend, geri kalan her şey -> frontend'e yönlendirir.
-  # Local dev'de (plain `docker compose up`) hiç başlamaz.
-  caddy:
-    image: caddy:2
-    profiles: ["prod"]
-    restart: unless-stopped
-    depends_on:
-      - backend
-      - frontend
-    environment:
-      SITE_ADDRESS: ${SITE_ADDRESS}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+  # Prod Caddy (80/443, SITE_ADDRESS) artık burada değil (2026-09-18) -- bu VPS aynı zamanda
+  # alakasız bir başka proje (clipbot) de barındırıyor, ve clipbot standart olmayan bir portta
+  # (8090) çalıştığı için bazı ISP/mobil operatörler tarafından filtreleniyordu. Kalıcı çözüm:
+  # 80/443'ü tutan TEK Caddy artık ne bu projeye ne clipbot'a ait, "edge-proxy" adında bağımsız
+  # üçüncü bir proje olarak VPS'te ayrıca çalışıyor (bu repoda değil) ve backend/frontend'e
+  # buradaki gibi reverse_proxy yapıyor, ayrıca clipbot'un kendi servisine de. Kök `Caddyfile`
+  # de bu yüzden kaldırıldı. TLS sertifika volume'ları (eskiden buradaki caddy_data/caddy_config)
+  # de artık edge-proxy'nin kendi docker-compose.yml'inde "external: true" ile referans alınıyor
+  # (aynı volume'lar, sertifika yeniden alınmadı) -- ayrıntı: clipbot repo'sundaki CLAUDE.md'nin
+  # "edge-proxy" notu.
 
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:
