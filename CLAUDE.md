@@ -39,18 +39,21 @@ görüyor. Alarmdan bağımsız, sadece takip amaçlı.
   ile çekiliyor, örn. `THYAO.IS`. Kontrol sıklığı düşük (saatte 1) olduğu için
   rate-limit riski yok, bu proje için yeterince stabil kabul edildi.
 - **Veritabanı**: PostgreSQL, Docker container olarak çalışacak
-- **Deploy**: Docker Compose ile 4 servis (kesinleşti ve VPS'e canlı deploy
+- **Deploy**: Docker Compose ile 3 servis (kesinleşti ve VPS'e canlı deploy
   edildi — bkz. "Deploy durumu"):
   1. `postgres` — veritabanı
   2. `backend` — API + alarm kontrol mantığı
   3. `frontend` — React build, statik dosya olarak servis ediliyor
-  4. `caddy` — reverse proxy + otomatik SSL (nginx+Certbot yerine tercih
-     edildi: tek container, Let's Encrypt sertifikasını kendi yönetiyor).
-     `docker-compose.yml`'de `profiles: ["prod"]` ile tanımlı, sadece VPS'te
-     `docker compose --profile prod up -d` ile devreye giriyor, local dev'de
-     hiç başlamıyor. Gerçek bir domain yerine `sslip.io` kullanılıyor
-     (`<ip-tireli>.sslip.io` sunucunun kendi IP'sine çözülüyor) — ayrı domain
-     kaydına gerek yok.
+
+  **Reverse proxy artık bu projenin bir parçası değil** (2026-09-18'e kadar
+  buradaki `docker-compose.yml`'de 4. servis olarak bir `caddy` vardı; şimdi
+  kaldırıldı, bkz. `TODO.md`'deki 2026-09-18 notu). VPS'te bu projeyle
+  alakasız bir başka proje (clipbot) de çalıştığı için, 80/443'ü tutan Caddy
+  artık ne bu projeye ne ona ait, VPS'te ayrı, bağımsız bir üçüncü proje
+  olarak (`edge-proxy`, bu repoda değil) çalışıyor ve `backend`/`frontend`'e
+  eskisiyle aynı kurallarla (`/api/*` → backend, geri kalanı → frontend)
+  reverse_proxy yapıyor — sertifika/`sslip.io`/Let's Encrypt yönetimi de
+  oraya taşındı, burada değil.
 - **Backend dili**: Python/FastAPI (kesinleşti). `check_alarms_prototype.py`
   prototipinin üzerine geliştirilecek.
 
