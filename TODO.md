@@ -55,6 +55,18 @@
 - [x] VPS'te docker-compose up ile yayına alındı
 - [x] Domain/SSL: gerçek domain yerine `sslip.io` kullanılıyor (`<ip-tireli>.sslip.io` şeklinde sunucunun kendi IP'sine çözülüyor, ekstra domain kaydına gerek bırakmıyor). Caddy bu adres için Let's Encrypt sertifikasını otomatik alıyor/yeniliyor (nginx+Certbot yerine tek container'lık Caddy'ye karar verildi — `docker-compose.yml`'de `caddy` servisi `profiles: ["prod"]` ile sadece VPS'te devreye giriyor, local dev'i etkilemiyor)
 - [x] 2026-09-17: VPS'in IP'si sağlayıcı tarafından değiştirildi (eski IP ağ seviyesinde tamamen erişilemez hale gelmişti, destek yeni IP verdi). Yeni IP'ye geçişte iki ayrı arıza tespit edilip düzeltildi: (1) `ufw`'nin forward/routed trafik için varsayılan politikası `DROP`'a dönmüştü → container'lar internete çıkamıyor, Let's Encrypt sertifikası alınamıyordu; `/etc/default/ufw`'de `DEFAULT_FORWARD_POLICY` `ACCEPT` yapılıp `ufw reload` edildi (gelen bağlantı kısıtlaması — sadece 22/80/443 — değişmedi, sadece container'ların dışarı çıkışı açıldı). (2) Docker'ın proje bridge network'ü (`tradetime_default`) IPv4 adresini kaybetmişti (`br-*` arayüzünde sadece IPv6 link-local kalmıştı) → `systemctl restart docker` ile düzeldi. `.env`/`Caddyfile`'daki `SITE_ADDRESS`/`ALLOWED_ORIGINS` yeni IP'nin sslip.io adresine güncellendi.
+- [x] 2026-09-18: Bu VPS aynı zamanda alakasız bir başka proje de (clipbot, `/opt/clipbot`)
+      barındırıyor. clipbot standart olmayan bir portta (8090) çalıştırıldığında bazı
+      ISP/mobil operatörler tarafından filtrelendiği fark edildi (gerçek kullanıcılar
+      `ERR_CONNECTION_TIMED_OUT` alıyordu). Kalıcı çözüm: **`docker-compose.yml`'deki
+      `caddy` servisi (ve kök `Caddyfile`) tamamen kaldırıldı** — 80/443'ü tutan Caddy artık
+      ne bu projeye ne clipbot'a ait, VPS'te ayrı, bağımsız bir proje olarak (`edge-proxy`,
+      bu repoda değil) çalışıyor; backend/frontend'e aynı `/api/*`→backend, geri kalan→frontend
+      kurallarıyla reverse_proxy yapıyor, ayrıca clipbot'un kendi servisine de. TLS sertifika
+      volume'ları (`tradetime_caddy_data`/`tradetime_caddy_config`) sıfırdan alınmadı, aynen
+      `edge-proxy`'ye taşındı. **Bu VPS'in çalışan kopyasında elle yapıldı**, artık bu commit'le
+      kaynağa da yansıtıldı — bir sonraki `git pull`+`docker compose up`'ta eski `caddy`
+      servisi geri gelmeyecek. Ayrıntı: clipbot repo'sundaki `CLAUDE.md`'nin "edge-proxy" notu.
 
 ## Notlar
 - Web Push, tarayıcı kapalıyken bile bildirim gösterebilir (service worker sayesinde), ama HTTPS zorunludur — bu yüzden domain + SSL sertifikası (örn. Let's Encrypt) planına dahil edilmeli.
